@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	//"errors"
 )
 
 type Arguments map[string]string
@@ -98,7 +97,7 @@ func add(args Arguments, writer io.Writer) error {
 		}
 	}
 	if found > -1 {
-		_, err = fmt.Fprintf(writer, "Item with id %s already exists in JSON-file", newUser.Id)
+		_, err = fmt.Fprintf(writer, "Item with id %s already exists", newUser.Id)
 		if err != nil {
 			panic(err)
 		}
