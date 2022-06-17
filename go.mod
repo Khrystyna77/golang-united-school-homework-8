@@ -1,3 +1,3 @@
-module homework8
+module homew/main
 
 go 1.17
