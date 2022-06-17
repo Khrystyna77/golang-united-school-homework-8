@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 type Userslist struct {
@@ -33,30 +34,47 @@ func parseArgs() Arguments {
 	return map[string]string{"operation": *OperationFlag, "item": *ItemFlag, "id": *IdFlag, "fileName": *FileNameFlag}
 }
 
+// func add(string) byte {
+// 	user1 := []Userslist{}
+// 	buff, err := bytes.NewBufferString()
+// 	buff.WriteString(&user)
+// 	res := os.Stdout
+// 	data = append(data[:closingBraceIdx], ins...)
+
+// }
+
 //don't touch
 func Perform(args Arguments, writer io.Writer) error {
+	// var ItemFlag *string
+	// ItemFlag = flag.String("item", "", "Lists of users")
+	// flag.Parse()
 	//scaner := bufio.NewScanner(args)
+	if args["fileName"] == "" {
+		return fmt.Errorf("Missing filename")
+	}
+	if args["item"] == "" {
+		return fmt.Errorf("Please type items")
+	}
 
-	f, err := os.OpenFile("users.json", os.O_RDWR|os.O_CREATE, 0755)
+	file, err := os.OpenFile("users.json", os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := f.Close(); err != nil {
+	file, err = os.OpenFile("users.json", os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	args["item"] = "[{}]"
 	user := []Userslist{}
 
-	file, err := os.OpenFile("users.json", os.O_APPEND|os.O_WRONLY, 0644)
-	defer file.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	itemBytes, err := json.Marshal(&user)
-	if _, err := io.WriteString(file, string(itemBytes)); err != nil {
+
+	if err != nil {
+		return fmt.Errorf("not enaught data  %v", user, err)
+	}
+	//write data trying
+	if _, err := io.WriteString(file, strings.ToLower(string(itemBytes))); err != nil {
 		return fmt.Errorf("Write json %v to file %v finished with error: %w\n", string(itemBytes), args["users.json"], err)
 	}
 
