@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -34,26 +35,62 @@ func parseArgs() Arguments {
 	return map[string]string{"operation": *OperationFlag, "item": *ItemFlag, "id": *IdFlag, "fileName": *FileNameFlag}
 }
 
-// func add(string) byte {
-// 	user1 := []Userslist{}
-// 	buff, err := bytes.NewBufferString()
-// 	buff.WriteString(&user)
-// 	res := os.Stdout
-// 	data = append(data[:closingBraceIdx], ins...)
+func add(args Arguments, writer io.Writer) error {
+	input := args["item"]
 
-// }
+	if input == "" {
+		return fmt.Errorf("-item flag has to be specified")
+	}
+	var newUser Userslist
+	err := json.Unmarshal([]byte(input), &newUser)
+	if err != nil {
+		return err
+	}
+	filej := "users.json"
+	fileName1 := args["fileName"]
+	if fileName1 == "" {
+		return fmt.Errorf("-fileName flag has to be specified")
+	}
+
+	var allUsers1 []string
+	allUsers1 = append(allUsers1, input)
+	//Newuser := []Userslist{}
+	f, err := ioutil.ReadFile(filej)
+	if err != nil {
+		log.Fatal(err)
+	}
+	data := []Userslist{}
+	json.Unmarshal(f, &data)
+	//ID := args["id"]
+	newStruct := &Userslist{}
+
+	data = append(data, *newStruct)
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ioutil.WriteFile(filej, dataBytes, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return nil
+}
 
 //don't touch
 func Perform(args Arguments, writer io.Writer) error {
-	// var ItemFlag *string
-	// ItemFlag = flag.String("item", "", "Lists of users")
-	// flag.Parse()
-	//scaner := bufio.NewScanner(args)
-	if args["fileName"] == "" {
-		return fmt.Errorf("Missing filename")
+
+	input := args["item"]
+
+	if input == "" {
+		return fmt.Errorf("-item flag has to be specified")
 	}
-	if args["item"] == "" {
-		return fmt.Errorf("Please type items")
+	fileName1 := args["fileName"]
+	if fileName1 == "" {
+		return fmt.Errorf("-fileName flag has to be specified")
+	}
+	if args["operation"] == "" {
+		return fmt.Errorf("-operation flag has to be specified")
 	}
 
 	file, err := os.OpenFile("users.json", os.O_RDWR|os.O_CREATE, 0755)
@@ -61,21 +98,25 @@ func Perform(args Arguments, writer io.Writer) error {
 		log.Fatal(err)
 	}
 
-	file, err = os.OpenFile("users.json", os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// file, err = os.OpenFile("users.json", os.O_RDWR|os.O_CREATE, 0755)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	user := []Userslist{}
 
 	itemBytes, err := json.Marshal(&user)
 
 	if err != nil {
-		return fmt.Errorf("not enaught data  %v", user, err)
+		return fmt.Errorf("not enaught data  %v", err)
 	}
 	//write data trying
 	if _, err := io.WriteString(file, strings.ToLower(string(itemBytes))); err != nil {
 		return fmt.Errorf("Write json %v to file %v finished with error: %w\n", string(itemBytes), args["users.json"], err)
+	}
+
+	if args["operation"] == "add" {
+		return add(args, writer)
 	}
 
 	return nil
