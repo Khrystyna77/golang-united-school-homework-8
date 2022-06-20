@@ -12,7 +12,7 @@ import (
 )
 
 type Userslist struct {
-	ID    uint   `json:"id"`
+	ID    string `json:"id", omitempty`
 	email string `json:"email"`
 	age   uint   `json:"age`
 }
@@ -46,7 +46,7 @@ func add(args Arguments, writer io.Writer) error {
 	if err != nil {
 		return err
 	}
-	filej := "users.json"
+	//filej := "users.json"
 	fileName1 := args["fileName"]
 	if fileName1 == "" {
 		return fmt.Errorf("-fileName flag has to be specified")
@@ -55,7 +55,7 @@ func add(args Arguments, writer io.Writer) error {
 	var allUsers1 []string
 	allUsers1 = append(allUsers1, input)
 	//Newuser := []Userslist{}
-	f, err := ioutil.ReadFile(filej)
+	f, err := ioutil.ReadFile(fileName1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,12 +70,41 @@ func add(args Arguments, writer io.Writer) error {
 		log.Fatal(err)
 	}
 
-	err = ioutil.WriteFile(filej, dataBytes, 0644)
+	err = ioutil.WriteFile(fileName1, dataBytes, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return nil
 }
+
+func remove(args Arguments, writer io.Writer) error {
+	fileName := args["fileName"]
+	allUsers := []Userslist{}
+	var Newuser Userslist
+
+	_, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+	for _, v := range allUsers {
+		if v.ID != Newuser.ID {
+			allUsers = append(allUsers, Newuser)
+			fmt.Println(allUsers)
+			return nil
+
+		} else {
+			//fmt.Println("file id not found")
+			return err
+		}
+
+	}
+
+	return nil
+
+}
+
+// input := args["item"data :=
+//birdJson := `{id: "1", email: «test@test.com», age: 31}, {id: "2", email: «test2@test.com», age: 41}`
 
 //don't touch
 func Perform(args Arguments, writer io.Writer) error {
@@ -117,6 +146,9 @@ func Perform(args Arguments, writer io.Writer) error {
 
 	if args["operation"] == "add" {
 		return add(args, writer)
+	}
+	if args["operation"] == "remove" {
+		return remove(args, writer)
 	}
 
 	return nil
