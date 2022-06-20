@@ -78,6 +78,17 @@ func add(args Arguments, writer io.Writer) error {
 }
 
 func remove(args Arguments, writer io.Writer) error {
+	fileName1 := args["fileName"]
+	if fileName1 == "" {
+		return fmt.Errorf("-fileName flag has to be specified")
+	}
+
+	if fileName1 == "" {
+		return fmt.Errorf("-fileName flag has to be specified")
+	}
+	if args["operation"] == "" {
+		return fmt.Errorf("-operation flag has to be specified")
+	}
 	fileName := args["fileName"]
 	allUsers := []Userslist{}
 	var Newuser Userslist
@@ -97,6 +108,37 @@ func remove(args Arguments, writer io.Writer) error {
 			return err
 		}
 
+	}
+
+	return nil
+
+}
+func findById(writer io.Writer, args Arguments) error {
+	var filejson1 []byte
+	if args["id"] == "" {
+		return fmt.Errorf("-id flag has to be specified")
+	}
+	var users []Userslist
+
+	if len(filejson1) > 0 {
+		err := json.Unmarshal(filejson1, &users)
+		if err != nil {
+			return nil
+		}
+	}
+
+	for _, val := range users {
+		if val.ID == args["id"] {
+			result, err := json.Marshal(val)
+			if err != nil {
+				return fmt.Errorf("convert to json")
+			}
+
+			_, err = writer.Write(result)
+			if err != nil {
+				return fmt.Errorf("no such id")
+			}
+		}
 	}
 
 	return nil
@@ -149,6 +191,9 @@ func Perform(args Arguments, writer io.Writer) error {
 	}
 	if args["operation"] == "remove" {
 		return remove(args, writer)
+	}
+	if args["operation"] == "findById" {
+		return findById(writer, args)
 	}
 
 	return nil
