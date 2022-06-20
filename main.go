@@ -83,9 +83,6 @@ func remove(args Arguments, writer io.Writer) error {
 		return fmt.Errorf("-fileName flag has to be specified")
 	}
 
-	if fileName1 == "" {
-		return fmt.Errorf("-fileName flag has to be specified")
-	}
 	if args["operation"] == "" {
 		return fmt.Errorf("-operation flag has to be specified")
 	}
@@ -114,6 +111,20 @@ func remove(args Arguments, writer io.Writer) error {
 
 }
 func findById(writer io.Writer, args Arguments) error {
+	input := args["item"]
+
+	if input == "" {
+		return fmt.Errorf("-item flag has to be specified")
+	}
+	fileName1 := args["fileName"]
+	if fileName1 == "" {
+		return fmt.Errorf("-fileName flag has to be specified")
+	}
+
+	if args["operation"] == "" {
+		return fmt.Errorf("-operation flag has to be specified")
+	}
+
 	var filejson1 []byte
 	if args["id"] == "" {
 		return fmt.Errorf("-id flag has to be specified")
@@ -152,7 +163,9 @@ func findById(writer io.Writer, args Arguments) error {
 func Perform(args Arguments, writer io.Writer) error {
 
 	input := args["item"]
-
+	if args["operation"] == "" {
+		return fmt.Errorf("-operation flag has to be specified")
+	}
 	if input == "" {
 		return fmt.Errorf("-item flag has to be specified")
 	}
@@ -194,6 +207,9 @@ func Perform(args Arguments, writer io.Writer) error {
 	}
 	if args["operation"] == "findById" {
 		return findById(writer, args)
+	}
+	if args["operation"] != args["add"] || args["operation"] != args["remove"] || args["operation"] != args["findById"] || args["operation"] != "" {
+		return fmt.Errorf("Operation %s not allowed!", args["operation"])
 	}
 
 	return nil
