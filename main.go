@@ -52,8 +52,6 @@ func add(args Arguments, writer io.Writer) error {
 		return fmt.Errorf("-fileName flag has to be specified")
 	}
 
-	var allUsers1 []string
-	allUsers1 = append(allUsers1, input)
 	//Newuser := []Userslist{}
 	f, err := ioutil.ReadFile(fileName1)
 	if err != nil {
@@ -63,16 +61,26 @@ func add(args Arguments, writer io.Writer) error {
 	json.Unmarshal(f, &data)
 	//ID := args["id"]
 	newStruct := &Userslist{}
+	//var users []Userslist
+	for _, val := range data {
+		if val.ID == newUser.ID {
+			_, err = writer.Write([]byte(fmt.Sprintf("Item with id %s already exists", newUser.ID)))
+			if err != nil {
+				return fmt.Errorf("error to output Existing id message")
+			}
+			data = append(data, *newStruct)
+			dataBytes, err := json.Marshal(data)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-	data = append(data, *newStruct)
-	dataBytes, err := json.Marshal(data)
-	if err != nil {
-		log.Fatal(err)
-	}
+			err = ioutil.WriteFile(fileName1, dataBytes, 0644)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-	err = ioutil.WriteFile(fileName1, dataBytes, 0644)
-	if err != nil {
-		log.Fatal(err)
+		}
+
 	}
 	return nil
 }
@@ -90,7 +98,12 @@ func remove(args Arguments, writer io.Writer) error {
 	allUsers := []Userslist{}
 	var Newuser Userslist
 
-	_, err := ioutil.ReadFile(fileName)
+	_, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0755)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//_, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return err
 	}
@@ -102,6 +115,7 @@ func remove(args Arguments, writer io.Writer) error {
 
 		} else {
 			//fmt.Println("file id not found")
+
 			return err
 		}
 
